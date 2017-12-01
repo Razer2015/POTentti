@@ -20,6 +20,8 @@ namespace POLuokat
         public string ShipPostalCode { get; set; }
         public string ShipCountry { get; set; }
 
+        // Navigaatio-ominaisuudet
+        public virtual Asiakas Asiakas { get; set; }
         public virtual List<TilausRivi> TilausRivit { get; set; }
 
         /// <summary>

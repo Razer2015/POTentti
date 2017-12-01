@@ -8,6 +8,10 @@
         public int? Quantity { get; set; }
         public float? Discount { get; set; }
 
+        // Navigaatio-ominaisuudet
+        public virtual TilausOtsikko Tilaus { get; set; }
+        public virtual Tuote Tuote { get; set; }
+
         /// <summary>
         /// Constructor
         /// </summary>

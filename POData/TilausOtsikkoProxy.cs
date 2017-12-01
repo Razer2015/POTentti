@@ -5,10 +5,26 @@ namespace POData
 {
     public class TilausOtsikkoProxy : TilausOtsikko
     {
+        Asiakas _asiakas;
         List<TilausRivi> _tilausRivit;
+        bool AsiakasHaettu = false;
         bool TilausRivitHaettu = false;
 
+        public AsiakasRepository AsiakasRepository { get; set; }
         public TilausRiviRepository TilausRiviRepository { get; set; }
+
+        public override Asiakas Asiakas
+        {
+            get
+            {
+                if (!AsiakasHaettu) {
+                    _asiakas = AsiakasRepository.Hae(CustomerID);
+                    AsiakasHaettu = true;
+                }
+                return (_asiakas);
+            }
+            set => base.Asiakas = value;
+        }
 
         public override List<TilausRivi> TilausRivit
         {

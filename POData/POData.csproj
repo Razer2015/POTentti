@@ -45,6 +45,7 @@
     <Compile Include="AsiakasRepository.cs" />
     <Compile Include="DataAccess.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TilausRiviProxy.cs" />
     <Compile Include="TilausRiviRepository.cs" />
     <Compile Include="TilausOtsikkoRepository.cs" />
     <Compile Include="TuoteProxy.cs" />

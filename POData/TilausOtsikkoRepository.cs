@@ -31,6 +31,7 @@ namespace POData
                 ShipCountry = (!(reader["ShipCountry"] is DBNull) ? reader["ShipCountry"].ToString() : null)
             };
 
+            paluu.AsiakasRepository = new AsiakasRepository(ConnectionString);
             paluu.TilausRiviRepository = new TilausRiviRepository(ConnectionString);
 
             return (paluu);
@@ -47,6 +48,26 @@ namespace POData
                 asiakkaat.Add(TeeRivistaTilausOtsikko(reader));
             }
             return (asiakkaat);
+        }
+
+        public TilausOtsikko Hae(int id) {
+            string sql = "SELECT * FROM dbo.Orders WHERE OrderID = @OrderID";
+
+            try {
+                // Using block kutsuu Dispose metodia, joka puolestaan kutsuu myös Close metodia (Myös virheen sattuessa)
+                using (var sqlCon = new SqlConnection(ConnectionString)) {
+                    sqlCon.Open();
+                    using (var cmd = new SqlCommand(sql, sqlCon)) {
+                        cmd.Parameters.Add(new SqlParameter("@OrderID", id));
+                        var reader = cmd.ExecuteReader(CommandBehavior.SingleRow);
+                        reader.Read();
+                        return (TeeRivistaTilausOtsikko(reader));
+                    }
+                }
+            }
+            catch (Exception e) {
+                throw new ApplicationException($"Tietokantavirhe: {e.Message}");
+            }
         }
 
         public List<TilausOtsikko> HaeAsiakkaanKaikki(string id) {

@@ -16,6 +16,7 @@ namespace POLuokat
         public string Phone { get; set; }
         public string Fax { get; set; }
 
+        // Navigaatio-ominaisuudet
         public virtual List<TilausOtsikko> Tilaukset { get; set; }
 
         /// <summary>
