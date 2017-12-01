@@ -5,6 +5,10 @@ VisualStudioVersion = 15.0.27004.2005
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "POLuokat", "POLuokat\POLuokat.csproj", "{4DE76167-BD45-45A1-BBC8-9CAB1BAD26AE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "POData", "POData\POData.csproj", "{B3D7D23E-B8E6-478E-9CC7-423C06C53E27}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "POSovellus", "POSovellus\POSovellus.csproj", "{B57E4767-AA9D-4DB1-930D-BB1765D2F1D3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +19,14 @@ Global
 		{4DE76167-BD45-45A1-BBC8-9CAB1BAD26AE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4DE76167-BD45-45A1-BBC8-9CAB1BAD26AE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4DE76167-BD45-45A1-BBC8-9CAB1BAD26AE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B3D7D23E-B8E6-478E-9CC7-423C06C53E27}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B3D7D23E-B8E6-478E-9CC7-423C06C53E27}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B3D7D23E-B8E6-478E-9CC7-423C06C53E27}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B3D7D23E-B8E6-478E-9CC7-423C06C53E27}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B57E4767-AA9D-4DB1-930D-BB1765D2F1D3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B57E4767-AA9D-4DB1-930D-BB1765D2F1D3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B57E4767-AA9D-4DB1-930D-BB1765D2F1D3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B57E4767-AA9D-4DB1-930D-BB1765D2F1D3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
