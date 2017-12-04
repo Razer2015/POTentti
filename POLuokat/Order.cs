@@ -3,16 +3,16 @@ using System.Collections.Generic;
 
 namespace POLuokat
 {
-    public class TilausOtsikko
+    public class Order
     {
-        public int Id { get; set; }
+        public int OrderID { get; set; }
         public string CustomerID { get; set; }
         public int? EmployeeID { get; set; }
         public DateTime? OrderDate { get; set; }
         public DateTime? RequiredDate { get; set; }
         public DateTime? ShippedDate { get; set; }
         public int? ShipVia { get; set; }
-        public double? Freight { get; set; }
+        public decimal? Freight { get; set; }
         public string ShipName { get; set; }
         public string ShipAddress { get; set; }
         public string ShipCity { get; set; }
@@ -20,29 +20,27 @@ namespace POLuokat
         public string ShipPostalCode { get; set; }
         public string ShipCountry { get; set; }
 
-        // Navigaatio-ominaisuudet
-        public virtual Asiakas Asiakas { get; set; }
-        public virtual List<TilausRivi> TilausRivit { get; set; }
+        // Navigation properties
+        public virtual Customer Customer { get; set; }
+        public virtual List<OrderDetail> OrderDetails { get; set; }
 
         /// <summary>
         /// Constructor
         /// </summary>
-        public TilausOtsikko() {
-            TilausRivit = new List<TilausRivi>();
+        public Order() {
+            OrderDetails = new List<OrderDetail>();
         }
 
         /// <summary>
         /// Additional Constructor
         /// </summary>
-        /// <param name="id"></param>
-        /// <param name="companyName"></param>
-        public TilausOtsikko(int id, string customerID) : this() {
-            this.Id = id;
-            this.CustomerID = customerID;
+        /// <param name="orderID"></param>
+        public Order(int orderID) : this() {
+            this.OrderID = orderID;
         }
 
         public override string ToString() {
-            return ($"{Id} {CustomerID}");
+            return ($"{OrderID} {CustomerID}");
         }
     }
 }

@@ -5,14 +5,12 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace POSovellus
 {
     class Program
     {
-        static AsiakasRepository asiakasRepo;
+        static CustomerRepository customerRepo;
 
         static void AsetaDataDirectory() {
             // Asetetaan muuttuja DataDirectory, jota käytetään yhteysmerkkijonossa  
@@ -28,8 +26,8 @@ namespace POSovellus
             Console.ForegroundColor = ConsoleColor.Yellow;
             AsetaDataDirectory();
 
-            var yhteysAsetukset = ConfigurationManager.ConnectionStrings["DB"];
-            asiakasRepo = new AsiakasRepository(yhteysAsetukset.ConnectionString);
+            var connectionSettings = ConfigurationManager.ConnectionStrings["DB"];
+            customerRepo = new CustomerRepository(connectionSettings.ConnectionString);
 
             AloitusNakyma();
         }
@@ -87,16 +85,16 @@ namespace POSovellus
             if (int.TryParse(syote, out var ulos) && ulos > 0 && ulos <= 3) {
                 Console.Write("Anna haettavien alku: ");
                 var haku = Console.ReadLine();
-                List<Asiakas> asiakkaat = null;
+                List<Customer> asiakkaat = null;
                 switch (ulos) {
                     case 1:
-                        asiakkaat = asiakasRepo.HaeByNimi(haku);
+                        asiakkaat = customerRepo.SearchByName(haku);
                         break;
                     case 2:
-                        asiakkaat = asiakasRepo.HaeByCity(haku);
+                        asiakkaat = customerRepo.SearchByCity(haku);
                         break;
                     case 3:
-                        asiakkaat = asiakasRepo.HaeByCountry(haku);
+                        asiakkaat = customerRepo.SearchByCountry(haku);
                         break;
                 }
 
@@ -104,9 +102,9 @@ namespace POSovellus
                 for (int i = 0; i < asiakkaat.Count; i++) {
                     var asiakas = asiakkaat[i];
                     Console.WriteLine($"{i + 1}. asiakas: {asiakas.CompanyName}, {asiakas.City} {asiakas.Country}");
-                    var tilaukset = asiakas.Tilaukset;
+                    var tilaukset = asiakas.Orders;
                     tilaukset.ForEach(x => Console.WriteLine("  Tilaus: {0}, tuotteita {1}, arvo yhteensä {2:0.00}",
-                        x.Id, x.TilausRivit.Count, x.TilausRivit.Sum(y => (y.UnitPrice * y.Quantity))));
+                        x.OrderID, x.OrderDetails.Count, x.OrderDetails.Sum(y => (y.UnitPrice * y.Quantity))));
 
                     if (((i + 1) < asiakkaat.Count)) {
                         Console.WriteLine("Seuraava painamalla Enter.");
@@ -135,13 +133,13 @@ namespace POSovellus
             var kaupunki = Console.ReadLine();
 
             try {
-                var asiakas = new Asiakas();
-                asiakas.Id = tunnus;
+                var asiakas = new Customer();
+                asiakas.CustomerID = tunnus;
                 asiakas.CompanyName = nimi;
                 asiakas.Country = maa;
                 asiakas.City = kaupunki;
 
-                if (asiakasRepo.Lisaa(asiakas)) {
+                if (customerRepo.Add(asiakas)) {
                     Console.WriteLine("Asiakas lisätty.");
                 }
                 else {
@@ -167,10 +165,10 @@ namespace POSovellus
             var tunnus = Console.ReadLine();
             
             try {
-                Asiakas asiakas = asiakasRepo.Hae(tunnus);
+                Customer asiakas = customerRepo.Search(tunnus);
 
                 Console.WriteLine("Asiakkaan tiedot: {0} {1}, {2} {3}",
-                    asiakas.Id, asiakas.CompanyName,
+                    asiakas.CustomerID, asiakas.CompanyName,
                     asiakas.City, asiakas.Country);
 
                 Console.Write("Anna uusi nimi tai tyhjä: ");
@@ -191,7 +189,7 @@ namespace POSovellus
                 }
 
                 try {
-                    if (asiakasRepo.Muuta(asiakas)) {
+                    if (customerRepo.Change(asiakas)) {
                         Console.WriteLine("Asiakas muutettu.");
                     }
                     else {
@@ -221,21 +219,21 @@ namespace POSovellus
 
             Console.WriteLine("Asiakkaan poistaminen");
 
-            var asiakkaat = asiakasRepo.HaeKaikki();
-            var tilaamattomat = asiakkaat.Where(x => x.Tilaukset.Count <= 0).ToList();
+            var asiakkaat = customerRepo.SearchAll();
+            var tilaamattomat = asiakkaat.Where(x => x.Orders.Count <= 0).ToList();
             tilaamattomat.ForEach(x => Console.WriteLine("{0} {1}, {2} {3}",
-                    x.Id, x.CompanyName,
+                    x.CustomerID, x.CompanyName,
                     x.City, x.Country));
 
             Console.Write("Anna poistettavan tunnus: ");
             var tunnus = Console.ReadLine();
 
-            if (tilaamattomat.Any(x => x.Id.Equals(tunnus.PadRight(5), StringComparison.OrdinalIgnoreCase))) {
+            if (tilaamattomat.Any(x => x.CustomerID.Equals(tunnus.PadRight(5), StringComparison.OrdinalIgnoreCase))) {
                 try {
                     Console.Write($"Haluatko varmasti poistaa asiakkaan {tunnus} (k/e)? ");
                     var vahvistus = Console.ReadLine();
                     if (vahvistus.Equals("k", StringComparison.OrdinalIgnoreCase)) {
-                        if (asiakasRepo.Poista(tunnus)) {
+                        if (customerRepo.Delete(tunnus)) {
                             Console.WriteLine("Asiakas poistettu.");
                         }
                         else {

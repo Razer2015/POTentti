@@ -6,23 +6,24 @@ using System.Data.SqlClient;
 
 namespace POData
 {
-    public class TilausOtsikkoRepository : DataAccess
+    public class OrderRepository : DataAccess
     {
-        public TilausOtsikkoRepository(string conString) : base(conString) { }
+        public OrderRepository(string conString) : base(conString) { }
 
         /// <summary>
-        /// Parsii TilausOtsikko-olion IDataReaderistä
+        /// Parses Order from IDataReader
         /// </summary>
         /// <param name="reader"></param>
         /// <returns></returns>
-        private TilausOtsikko TeeRivistaTilausOtsikko(IDataReader reader) {
-            var paluu = new TilausOtsikkoProxy(int.Parse(reader["OrderID"].ToString()), reader["CustomerID"].ToString()) {
+        private Order CreateOrder(IDataReader reader) {
+            var order = new OrderProxy(int.Parse(reader["OrderID"].ToString())) {
+                CustomerID = (!(reader["CustomerID"] is DBNull) ? reader["CustomerID"].ToString() : null),
                 EmployeeID = (!(reader["EmployeeID"] is DBNull) ? int.Parse(reader["EmployeeID"].ToString()) : (int?)null),
                 OrderDate = (!(reader["OrderDate"] is DBNull) ? DateTime.Parse(reader["OrderDate"].ToString()) : (DateTime?)null),
                 RequiredDate = (!(reader["RequiredDate"] is DBNull) ? DateTime.Parse(reader["RequiredDate"].ToString()) : (DateTime?)null),
                 ShippedDate = (!(reader["ShippedDate"] is DBNull) ? DateTime.Parse(reader["ShippedDate"].ToString()) : (DateTime?)null),
                 ShipVia = (!(reader["ShipVia"] is DBNull) ? int.Parse(reader["ShipVia"].ToString()) : (int?)null),
-                Freight = (!(reader["Freight"] is DBNull) ? double.Parse(reader["Freight"].ToString().Replace('.', ',')) : (double?)null),
+                Freight = (!(reader["Freight"] is DBNull) ? decimal.Parse(reader["Freight"].ToString().Replace('.', ',')) : (decimal?)null),
                 ShipName = (!(reader["ShipName"] is DBNull) ? reader["ShipName"].ToString() : null),
                 ShipAddress = (!(reader["ShipAddress"] is DBNull) ? reader["ShipAddress"].ToString() : null),
                 ShipCity = (!(reader["ShipCity"] is DBNull) ? reader["ShipCity"].ToString() : null),
@@ -31,26 +32,31 @@ namespace POData
                 ShipCountry = (!(reader["ShipCountry"] is DBNull) ? reader["ShipCountry"].ToString() : null)
             };
 
-            paluu.AsiakasRepository = new AsiakasRepository(ConnectionString);
-            paluu.TilausRiviRepository = new TilausRiviRepository(ConnectionString);
+            order.CustomerRepository = new CustomerRepository(ConnectionString);
+            order.OrderDetailRepository = new OrderDetailRepository(ConnectionString);
 
-            return (paluu);
+            return (order);
         }
 
         /// <summary>
-        /// Tekee listan tilausotsikoista
+        /// Parses Orders from IDataReader
         /// </summary>
         /// <param name="reader"></param>
         /// <returns></returns>
-        private List<TilausOtsikko> TeeTilausOtsikkoLista(IDataReader reader) {
-            var asiakkaat = new List<TilausOtsikko>();
+        private List<Order> CreateOrders(IDataReader reader) {
+            var orders = new List<Order>();
             while (reader.Read()) {
-                asiakkaat.Add(TeeRivistaTilausOtsikko(reader));
+                orders.Add(CreateOrder(reader));
             }
-            return (asiakkaat);
+            return (orders);
         }
 
-        public TilausOtsikko Hae(int id) {
+        /// <summary>
+        /// Searches for an order based on orderID
+        /// </summary>
+        /// <param name="orderID"></param>
+        /// <returns></returns>
+        public Order Search(int orderID) {
             string sql = "SELECT * FROM dbo.Orders WHERE OrderID = @OrderID";
 
             try {
@@ -58,19 +64,24 @@ namespace POData
                 using (var sqlCon = new SqlConnection(ConnectionString)) {
                     sqlCon.Open();
                     using (var cmd = new SqlCommand(sql, sqlCon)) {
-                        cmd.Parameters.Add(new SqlParameter("@OrderID", id));
+                        cmd.Parameters.Add(new SqlParameter("@OrderID", orderID));
                         var reader = cmd.ExecuteReader(CommandBehavior.SingleRow);
                         reader.Read();
-                        return (TeeRivistaTilausOtsikko(reader));
+                        return (CreateOrder(reader));
                     }
                 }
             }
             catch (Exception e) {
-                throw new ApplicationException($"Tietokantavirhe: {e.Message}");
+                throw new ApplicationException($"DatabaseError: {e.Message}");
             }
         }
 
-        public List<TilausOtsikko> HaeAsiakkaanKaikki(string id) {
+        /// <summary>
+        /// Searches for orders based on customerID
+        /// </summary>
+        /// <param name="customerID"></param>
+        /// <returns></returns>
+        public List<Order> SearchAllByCustomerID(string customerID) {
             string sql = "SELECT * FROM dbo.Orders WHERE CustomerID = @CustomerID";
 
             try {
@@ -78,13 +89,13 @@ namespace POData
                 using (var sqlCon = new SqlConnection(ConnectionString)) {
                     sqlCon.Open();
                     using (var cmd = new SqlCommand(sql, sqlCon)) {
-                        cmd.Parameters.Add(new SqlParameter("@CustomerID", id));
-                        return (TeeTilausOtsikkoLista(cmd.ExecuteReader()));
+                        cmd.Parameters.Add(new SqlParameter("@CustomerID", customerID));
+                        return (CreateOrders(cmd.ExecuteReader()));
                     }
                 }
             }
             catch (Exception e) {
-                throw new ApplicationException($"Tietokantavirhe: {e.Message}");
+                throw new ApplicationException($"DatabaseError: {e.Message}");
             }
         }
     }

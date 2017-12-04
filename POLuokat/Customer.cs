@@ -2,9 +2,9 @@
 
 namespace POLuokat
 {
-    public class Asiakas
+    public class Customer
     {
-        public string Id { get; set; }
+        public string CustomerID { get; set; }
         public string CompanyName { get; set; }
         public string ContactName { get; set; }
         public string ContactTitle { get; set; }
@@ -16,28 +16,28 @@ namespace POLuokat
         public string Phone { get; set; }
         public string Fax { get; set; }
 
-        // Navigaatio-ominaisuudet
-        public virtual List<TilausOtsikko> Tilaukset { get; set; }
+        // Navigation properties
+        public virtual List<Order> Orders { get; set; }
 
         /// <summary>
         /// Constructor
         /// </summary>
-        public Asiakas() {
-            Tilaukset = new List<TilausOtsikko>();
+        public Customer() {
+            Orders = new List<Order>();
         }
 
         /// <summary>
         /// Additional Constructor
         /// </summary>
-        /// <param name="id"></param>
+        /// <param name="customerID"></param>
         /// <param name="companyName"></param>
-        public Asiakas(string id, string companyName) : this() {
-            this.Id = id;
+        public Customer(string customerID, string companyName) : this() {
+            this.CustomerID = customerID;
             this.CompanyName = companyName;
         }
 
         public override string ToString() {
-            return ($"{Id} {CompanyName} ({Tilaukset.Count})");
+            return ($"{CustomerID} {CompanyName} ({Orders.Count})");
         }
     }
 }
