@@ -30,7 +30,7 @@ namespace POData
             get
             {
                 if (!ProductRetrieved) {
-                    _product = ProductRepository.Search((int)ProductID);
+                    _product = ProductRepository.Search(ProductID);
                     ProductRetrieved = true;
                 }
                 return (_product);

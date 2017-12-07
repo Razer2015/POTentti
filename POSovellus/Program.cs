@@ -29,11 +29,16 @@ namespace POSovellus
             var connectionSettings = ConfigurationManager.ConnectionStrings["DB"];
             customerRepo = new CustomerRepository(connectionSettings.ConnectionString);
 
-            AloitusNakyma();
+            // Looppaillaan aloitusnäkymää
+            while (AloitusNakyma());
         }
 
+        /// <summary>
+        /// Tulostaa ohjelman otsikon
+        /// </summary>
         static void TulostaOtsikko() {
             string otsikko = "Northwind-asiakkaat";
+            Console.Title = otsikko;
             Console.Clear();
             Console.WriteLine();
             Console.SetCursorPosition((Console.WindowWidth - otsikko.Length) / 2, Console.CursorTop);
@@ -41,7 +46,35 @@ namespace POSovellus
             Console.WriteLine();
         }
 
-        static void AloitusNakyma() {
+        /// <summary>
+        /// Tulostaa virheellinen syöte virhetekstin (Ei ollut tehtävänannossa)
+        /// </summary>
+        static void TulostaVirhe(string virheTeksti = "Antamasi syöte on virheellinen. Ole hyvä ja yritä uudelleen.", bool odotaKayttajaa = false) {
+            var variEnnen = Console.ForegroundColor;
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine(virheTeksti);
+            Console.ForegroundColor = variEnnen;
+            if (odotaKayttajaa) {
+                Console.WriteLine("Paina Enter.");
+                Console.ReadKey();
+            }
+        }
+
+        /// <summary>
+        /// Tulostaa tekstin vihreällä värillä (Ei ollut tehtävänannossa)
+        /// </summary>
+        static void TulostaOnnistunut(string teksti) {
+            var variEnnen = Console.ForegroundColor;
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine(teksti);
+            Console.ForegroundColor = variEnnen;
+        }
+
+        /// <summary>
+        /// Tulostaa aloitusvalikon
+        /// </summary>
+        /// <returns>true -> continue and false -> exit</returns>
+        static bool AloitusNakyma() {
             TulostaOtsikko();
 
             Console.WriteLine("1. Hae");
@@ -66,8 +99,20 @@ namespace POSovellus
                     case 4:
                         Poista();
                         break;
+                    case 5:
+                        // Lopetetaan ohjelma
+                        return (false);
+                    default:
+                        // Annettu arvo ei ollut arvoalueella
+                        TulostaVirhe(odotaKayttajaa: true);
+                        break;
                 }
             }
+            else { // Annettu arvo ei ollut luku
+                TulostaVirhe(odotaKayttajaa: true);
+            }
+
+            return (true);
         }
 
         static void Haku() {
@@ -115,8 +160,6 @@ namespace POSovellus
                 Console.WriteLine("Paina Enter.");
                 Console.ReadKey();
             }
-
-            AloitusNakyma();
         }
 
         static void Lisaa() {
@@ -125,6 +168,11 @@ namespace POSovellus
             Console.WriteLine("Uusi asiakas");
             Console.Write("Anna tunnus: ");
             var tunnus = Console.ReadLine();
+            // Pientä virheentarkistusta
+            if (tunnus.Length <= 0 || tunnus.Length > 5) {
+                TulostaVirhe(virheTeksti: "Tunnus ei saa olla tyhjä ja täytyy olla maksimissaan 5 merkkiä pitkä.", odotaKayttajaa: true);
+                return;
+            }
             Console.Write("Anna nimi: ");
             var nimi = Console.ReadLine();
             Console.Write("Anna maa: ");
@@ -140,21 +188,19 @@ namespace POSovellus
                 asiakas.City = kaupunki;
 
                 if (customerRepo.Add(asiakas)) {
-                    Console.WriteLine("Asiakas lisätty.");
+                    TulostaOnnistunut("Asiakas lisätty.");
                 }
                 else {
-                    Console.WriteLine("Asiakasta ei lisätty.");
+                    TulostaVirhe("Asiakasta ei lisätty.");
                 }
             }
             catch (ApplicationException ex) {
-                Console.WriteLine("Asiakasta ei lisätty.");
+                TulostaVirhe("Asiakasta ei lisätty.");
                 Console.WriteLine(ex.Message);
             }
 
             Console.WriteLine("Paina Enter.");
             Console.ReadKey();
-
-            AloitusNakyma();
         }
 
         static void Muuta() {
@@ -190,19 +236,19 @@ namespace POSovellus
 
                 try {
                     if (customerRepo.Change(asiakas)) {
-                        Console.WriteLine("Asiakas muutettu.");
+                        TulostaOnnistunut("Asiakas muutettu.");
                     }
                     else {
-                        Console.WriteLine("Asiakasta ei muutettu.");
+                        TulostaVirhe("Asiakasta ei muutettu.");
                     }
                 }
                 catch (ApplicationException ex) {
-                    Console.WriteLine("Asiakasta ei muutettu.");
+                    TulostaVirhe("Asiakasta ei muutettu.");
                     Console.WriteLine(ex.Message);
                 }
             }
             catch (ApplicationException) {
-                Console.WriteLine("Asiakasta ei löytynyt.");
+                TulostaVirhe("Asiakasta ei löytynyt.");
             }
             catch (Exception e) {
                 Console.WriteLine($"Error: {e.Message}");
@@ -210,8 +256,6 @@ namespace POSovellus
 
             Console.WriteLine("Paina Enter.");
             Console.ReadKey();
-
-            AloitusNakyma();
         }
 
         static void Poista() {
@@ -234,29 +278,27 @@ namespace POSovellus
                     var vahvistus = Console.ReadLine();
                     if (vahvistus.Equals("k", StringComparison.OrdinalIgnoreCase)) {
                         if (customerRepo.Delete(tunnus)) {
-                            Console.WriteLine("Asiakas poistettu.");
+                            TulostaOnnistunut("Asiakas poistettu.");
                         }
                         else {
-                            Console.WriteLine("Asiakkaan poisto epäonnistui.");
+                            TulostaVirhe("Asiakkaan poisto epäonnistui.");
                         }
                     }
                     else {
-                        Console.WriteLine("Asiakkaan poisto keskeytetty.");
+                        TulostaVirhe("Asiakkaan poisto keskeytetty.");
                     }
                 }
                 catch (ApplicationException ex) {
-                    Console.WriteLine("Asiakkaan poisto epäonnistui.");
+                    TulostaVirhe("Asiakkaan poisto epäonnistui.");
                     Console.WriteLine(ex.Message);
                 }
             }
             else {
-                Console.WriteLine("Kyseistä asiakasta ei ole tai sitä ei voi poistaa.");
+                TulostaVirhe("Kyseistä asiakasta ei ole tai sitä ei voi poistaa.");
             }
 
             Console.WriteLine("Paina Enter.");
             Console.ReadKey();
-
-            AloitusNakyma();
         }
     }
 }
